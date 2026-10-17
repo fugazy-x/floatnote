@@ -1,0 +1,189 @@
+# <u>Welcome to FloatNote</u>
+
+FloatNote is a note that floats above your other apps. It saves your text automatically.
+This note is your tutorial. Change it and try things. Press ⌘N for a clean note.
+Keys with fn: if fn types a letter on your keyboard, use the key in brackets.
+
+==Don't miss Paragraph mode== (fn P): FloatNote's signature feature. It turns a long paragraph into one sentence per line, so you can fix it fast. See ==Paragraph mode== under Tools.
+The three highlights, marked with a colored band below: ==Paragraph mode==, ==Copy out== and ==Move the box==.
+
+===
+
+
+# <u>Writing</u>
+
+## Styles
+Select a word, then press a key:
+1. ⌘B **bold**
+2. ⌘I *italic*
+3. ⌘U <u>underline</u>
+4. fn X (⇧⌘X) ~~strikethrough~~
+5. fn L (⇧⌘H) ==highlight==
+6. fn U (⇧⌘A) ALL CAPS
+Press the same key again to remove the style.
+⌘+ and ⌘− make the text larger or smaller.
+Try it: select this word, banana, and press fn L.
+
+
+## Give it shape
+Start a line with:
+1. # and a space: a title
+2. ## and a space: a subtitle
+3. 1. and a space: a numbered list
+4. - and a space: a bullet list
+In a list, Return adds the next item. Return on an empty item stops the list.
+Double-click a list item to strike it through; triple-click (or ⌘+click) it to highlight it. Do it again to undo.
+A line with only --- draws a line. A line with only === draws a double line.
+On a title, ⌥⌘T adds a line above and below it. The title then has its own area.
+Try it: click at the end of this line. Press Return, then type ## and a space and a word.
+
+
+---
+
+
+# <u>The box</u>
+
+## Hide and show
+Tap Right Option (the Option key on the right). The box fades, and clicks go through it. Tap it again and the box comes back.
+Esc also fades the box, and takes you back to your last app.
+⌘W sends the box to the Dock. Tap Right Option or click it in the Dock to bring it back.
+Try it: tap Right Option two times.
+
+
+## ==Move the box==
+Tap Right Command (the Command key on the right) for window mode. A pink border shows that it is on. You cannot type in window mode.
+1. ← → ↑ ↓: move the box
+2. w and s: shorter and taller
+3. a and d: narrower and wider
+4. , and . (or < and >): more or less see-through
+5. Hold ⇧ for larger steps
+Press Esc or tap Right Command again to stop.
+The background lets your screen show through. The text stays solid. You can also set this in ⌘, Settings > Opacity.
+Try it: tap Right Command. Press → three times and s two times. Then press Esc.
+Why it matters: put the box exactly where you need it, next to what you read or write, and see through it.
+Try it, step by step:
+1. Tap Right Command. A pink border and -- WINDOW -- show window mode is on.
+2. Press ← four times: the box moves left. Hold ⇧ and press ↓: it moves 4 times as far.
+3. Press s two times: taller. Press d two times: wider. w and a make it shorter and narrower again.
+4. Press , three times: the background gets more see-through. Press . three times: more solid again. Each press is 10%.
+5. Press Esc (or tap Right Command). Window mode is off and you can type again. The new place and size are kept for next time.
+
+
+## Fullscreen
+fn F shows this note on the full screen, as one column of text in its own Space.
+1. Esc or fn F: back to the box
+2. Right Option: go to your last app, and back again
+3. ⌘, Settings: column width and line spacing
+Move the mouse to the top edge to see the date, time, word count and battery, very faintly.
+Try it: press fn F, type a line, then press Esc.
+
+
+---
+
+
+# <u>Your notes</u>
+
+1. ⌘N: a new note
+2. ⌘O: all your notes, newest first. ↑ ↓ and Return open a note; or click a row (double-click opens). ← or → renames the file (blank = back to the default name).
+3. In that list, ⌘⌫ deletes a note. FloatNote asks first. The note goes to the macOS Trash.
+4. Drag a .txt or .md file onto the box. FloatNote copies it into a new note.
+Your notes are .txt files in Documents/FloatNote.
+Try it: press ⌘O, then Esc.
+
+
+---
+
+
+# <u>In and out</u>
+
+## Copy in from any app
+Select text in Safari or any other app and press ⌃⌥S. The text is added to the end of the note you have open, one blank line between paragraphs. With no note open, it becomes a new note in fullscreen.
+Try it: select a sentence in your browser and press ⌃⌥S.
+
+
+## ==Copy out== and send text out
+1. fn J (⌃⌘G): copy for Google Docs. Paste it there and the styles stay.
+2. fn G (⌃⌘L): ask Grok about the note
+3. fn K (⌃⌘K): ask Claude about the note
+4. fn M (⌃⌘X): post the selected text on X
+For Grok and Claude, type a question and press Return. Your browser opens with the question and the note, or only the selected text. You press send. Esc cancels.
+For X, select text first. X opens in your browser with the text ready (style marks removed) and you press Post yourself. FloatNote never posts for you.
+Try it: press fn K, type "Summarize", then press Esc.
+Why it matters: write here, then paste anywhere, with nothing to clean up.
+What Copy out (fn J) puts on the clipboard:
+1. For Google Docs and other rich editors: titles, bold, italic, underline, strikethrough, highlight and numbered lists, with their colors.
+2. For plain-text apps: clean text. The style marks are removed, and list numbers stay as you see them.
+3. No selection: the whole note. A selection: every line it touches, whole.
+4. In Paragraph mode: the paragraph, joined back into one.
+Practise on these lines:
+**Plan** for Friday: ==send the slides== and ~~call Sam~~.
+Try it, step by step:
+1. Click in the Plan line and select a word or two of it.
+2. Press fn J (or ⌃⌘G). The whole line is copied.
+3. Paste it into a Google Doc: bold, highlight and strikethrough are kept.
+4. Paste it into a plain-text app, like Notes in plain text or a chat: you get the words without the marks.
+5. Press fn G (Grok) or fn K (Claude), type a question and press Return. Your browser opens with your question and the text. You press send.
+Set up (optional): Ask Grok and Ask Claude open grok.com and claude.ai in your default browser. Sign in there once, and fn G / fn K land ready to send. ⌘, Settings has Open grok.com and Open claude.ai buttons for this. One, both or neither is fine: FloatNote works without them.
+
+
+---
+
+
+# <u>Tools</u>
+
+## Find your way
+1. fn O (⌥⌘V): the navigator. It shows all titles. ↑ ↓ and Return go to a title.
+2. ⌘F: find. fn R (⌥⌘F): find and replace.
+Try it: press fn O, then ↓ and Return.
+
+
+## ==Paragraph mode==
+Long paragraphs are hard to edit. fn P (⌥⌘P) shows the paragraph at your cursor with one sentence on each line.
+1. Edit each sentence on its own line.
+2. To move a sentence, cut its line (⌘X) and paste it (⌘V) on a different line.
+3. Esc or fn P: the lines join into one paragraph again.
+4. After that, one ⌘Z undoes all of the edit.
+Practise on this paragraph:
+The fox ran fast. It was late for dinner. Its friends were already at the table. Nobody saved it any soup.
+Try it: click in the paragraph and press fn P. Move the last sentence to the top. Then press Esc.
+
+Now a real one. This email paragraph is a mess:
+Thanks for the meeting today, it was really useful. Also the budget is due Friday. We should probably maybe talk about the launch date again because I think it is too early. I will send the slides tonight. Let me know what you think about all of this.
+Try it, step by step:
+1. Click anywhere in the email paragraph above.
+2. Press fn P (or ⌥⌘P). A colored border and -- PARAGRAPH -- show it is on. Each sentence now has its own line.
+3. Use ↑ and ↓ to move from sentence to sentence.
+4. Edit: change "We should probably maybe talk" to "Let's talk".
+5. Reorder: put the cursor on the budget line, select the line, press ⌘X, then paste it with ⌘V at the start of the last line.
+6. Add: at the end of the first line press Return and type a new sentence, like "Here is a quick update."
+7. Press fn J (⌃⌘G) while you are still in Paragraph mode: Copy out gives you the whole paragraph, joined back up.
+8. Press Esc. The lines join into one paragraph again, one space between sentences, and the note is saved.
+9. Changed your mind? Press ⌘Z once: the whole edit is undone in one step.
+
+
+---
+
+
+# <u>Settings and shortcuts</u>
+
+⌘, opens Settings: font, text size, theme, opacity and fullscreen. The Tutorial button there gives you a fresh copy of this note.
+⌘/ shows all shortcuts on one sheet.
+The sheet has two pages: page 1 has the essentials. Press → for page 2 with every shortcut, and ← to go back.
+
+
+---
+
+
+# <u>Trash</u>
+
+Empty notes clean themselves up. When you leave a note with no text, FloatNote moves it to the macOS Trash.
+When you leave a tutorial note, FloatNote asks first: Return moves it to the Trash, Esc keeps it as a normal note.
+To get a note back, open the Trash in Finder, select the file and choose Put Back.
+⌘⌫ in the notes list (⌘O) also moves the note to the Trash, after you confirm.
+⌥⌘⌫ in the notes list moves a note to the Trash at once, without asking. FloatNote has no permanent delete.
+To remove notes from the Trash for good, use Empty Trash in Finder, or select a file in the Trash and choose Delete Immediately.
+
+
+===
+
+Have fun.

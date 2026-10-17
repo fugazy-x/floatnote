@@ -1,0 +1,14 @@
+build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+.DS_Store
+*.dmg
+
+# Never: backups, certificates, keys
+*.bak*
+*.p12
+*.cer
+*.pem
+*.key
+*.keychain*
