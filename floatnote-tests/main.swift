@@ -563,7 +563,7 @@ do {
         let n = s as NSString
         guard let c2 = C.toggle(n, at: loc, .strike) else { return nil }
         let after2 = n.replacingCharacters(in: c2.whole, with: c2.text) as NSString
-        guard let c3 = C.toggle(after2, at: loc, .triple, strikeApplied: true) else { return nil }
+        guard let c3 = C.toggle(after2, at: loc, .triple, strikeApplied: true, before: n) else { return nil }
         return (after2 as String, after2.replacingCharacters(in: c3.whole, with: c3.text))
     }
     check("triple: plain dash item ends highlighted, not struck", triple("- one two", at: 4)?.afterClick3 == "- ==one two==" && triple("- one two", at: 4)?.afterClick2 == "- ~~one two~~")
@@ -588,6 +588,38 @@ do {
         guard let c3 = C.toggle(after2, at: 4, .triple, strikeApplied: true) else { return false }
         let out = after2.replacingCharacters(in: c3.whole, with: c3.text)
         return out == "a\n- ==one==\nb" && c3.caret == (out as NSString).range(of: "==one==").upperBound
+    }())
+    // A line that already holds a highlight / strike span: the click merges (one clean pair), never nests
+    func unpaired(_ line: String, _ tok: String) -> Bool {         // every token belongs to a real pair: nothing stray shows
+        let hit = MarkerLogic.spans(line).filter { $0.style == (tok == "==" ? .highlight : .strike) }
+        return (line.components(separatedBy: tok).count - 1) == hit.count * 2
+    }
+    let mc = "3. John McAfee all ==books,== tweets"
+    check("triple: partial highlight in a numbered line -> whole line highlighted once", triple(mc, at: 8)?.afterClick3 == "3. ==John McAfee all books, tweets==", "\(String(describing: triple(mc, at: 8)))")
+    check("triple: result has no stray ==", unpaired(triple(mc, at: 8)!.afterClick3, "=="))
+    check("triple: same partial highlight in a dash line", triple("- John McAfee all ==books,== tweets", at: 6)?.afterClick3 == "- ==John McAfee all books, tweets==")
+    check("triple: several inner highlight spans merge", triple("- ==a== b ==c== d ==e==", at: 4)?.afterClick3 == "- ==a b c d e==", "\(String(describing: triple("- ==a== b ==c== d ==e==", at: 4)))")
+    check("triple again on the merged line removes the highlight", triple("3. ==John McAfee all books, tweets==", at: 8)?.afterClick3 == "3. John McAfee all books, tweets")
+    check("triple: partial strike inside + highlight merges", triple("- one ~~two~~ three", at: 4)?.afterClick3 == "- ==one ~~two~~ three==" || triple("- one ~~two~~ three", at: 4)?.afterClick3 == "- ==one two three==" , "\(String(describing: triple("- one ~~two~~ three", at: 4)))")
+    check("triple (click 2 merged the inner strike): the strike inside comes back, only highlight changes", triple("- one ~~two~~ three", at: 4)?.afterClick3 == "- ==one ~~two~~ three==" && triple("- ==one ~~two~~ three==", at: 4)?.afterClick3 == "- one ~~two~~ three")
+    func one(_ s: String, _ a: C.Action, at loc: Int = 4) -> String? {
+        guard let r = C.toggle(s as NSString, at: loc, a) else { return nil }
+        return (s as NSString).replacingCharacters(in: r.whole, with: r.text)
+    }
+    check("⌘-click: partial highlight merges into one whole-line highlight", one(mc, .highlight, at: 8) == "3. ==John McAfee all books, tweets==")
+    check("⌘-click: dash line, two inner spans", one("- ==a== b ==c==", .highlight) == "- ==a b c==" )
+    check("⌘-click: fully highlighted line comes off", one("3. ==John McAfee all books, tweets==", .highlight, at: 8) == "3. John McAfee all books, tweets")
+    check("⌘-click: '==a== b ==c==' is two pairs, not one wrapped line (no stray == left)", one("- ==a== b ==c==", .highlight) != "- a== b ==c")
+    check("double click strike: partial strike merges to one strike", one("- ~~a~~ b ~~c~~ d", .strike) == "- ~~a b c d~~")
+    check("double click strike: fully struck line comes off", one("- ~~a b ~~c~~~~", .strike) != nil && one("- ~~a b c~~", .strike) == "- a b c")
+    check("highlight merge keeps letters, emoji and case", one("- Héllo ==😀 WoRLD== end", .highlight, at: 5) == "- ==Héllo 😀 WoRLD end==")
+    check("strict toggle: a lone/stray == does not block adding", one("- a == b", .highlight) == "- ==a == b==")
+    let sel = MarkerLogic.toggleSelection("x ==a== b ==c== y" as NSString, selection: NSRange(location: 2, length: 13), style: .highlight)
+    check("selection (fn L): partial highlights inside a selection merge too", sel.map { ("x ==a== b ==c== y" as NSString).replacingCharacters(in: $0.whole, with: $0.text) } == "x ==a b c== y", "\(String(describing: sel))")
+    check("selection: a selection of two pairs is not 'already wrapped'", { () -> Bool in
+        let t = "==a== b ==c==" as NSString
+        guard let r = MarkerLogic.toggleSelection(t, selection: NSRange(location: 0, length: t.length), style: .highlight) else { return false }
+        return t.replacingCharacters(in: r.whole, with: r.text) == "==a b c=="
     }())
     let t = C.toggle("- one" as NSString, at: 3, .strike)
     check("click: caret ends after the item", t != nil && t!.caret == 9 && t!.whole == NSRange(location: 2, length: 3), "\(String(describing: t))")

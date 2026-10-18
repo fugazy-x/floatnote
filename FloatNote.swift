@@ -584,14 +584,44 @@ enum MarkerLogic {
         let segments = MarkerLogic.segments(in: text, selection: sel)
         guard !segments.isEmpty else { return nil }
 
+        // Highlight / strike / underline: a piece only counts as "wrapped" when ONE real pair spans all of it. "==a== b ==c=="
+        // starts and ends with == but is two pairs: taking its outer == off left a stray "==" that showed in the editor.
+        let strict = style == .highlight || style == .strike || style == .underline
+        func pairs(_ r: NSRange) -> [Span] {
+            let lb = text.lineRange(for: NSRange(location: min(r.location, text.length), length: 0))
+            var end = NSMaxRange(lb); while end > lb.location, [10, 13].contains(text.character(at: end - 1)) { end -= 1 }
+            let line = text.substring(with: NSRange(location: lb.location, length: end - lb.location))
+            return MarkerLogic.spans(line).filter { $0.style == style }.map { sp in
+                Span(style: sp.style, open: NSRange(location: sp.open.location + lb.location, length: sp.open.length),
+                     close: NSRange(location: sp.close.location + lb.location, length: sp.close.length),
+                     content: NSRange(location: sp.content.location + lb.location, length: sp.content.length))
+            }
+        }
         func wrappedInside(_ r: NSRange) -> Bool {
-            r.length >= ol + cl && text.substring(with: NSRange(location: r.location, length: ol)) == open
-                && text.substring(with: NSRange(location: NSMaxRange(r) - cl, length: cl)) == close
+            guard r.length >= ol + cl, text.substring(with: NSRange(location: r.location, length: ol)) == open,
+                  text.substring(with: NSRange(location: NSMaxRange(r) - cl, length: cl)) == close else { return false }
+            return !strict || pairs(r).contains { $0.open.location == r.location && NSMaxRange($0.close) == NSMaxRange(r) }
         }
         func wrappedOutside(_ r: NSRange) -> Bool {
-            r.location >= ol && NSMaxRange(r) + cl <= text.length
+            guard r.location >= ol && NSMaxRange(r) + cl <= text.length
                 && text.substring(with: NSRange(location: r.location - ol, length: ol)) == open
-                && text.substring(with: NSRange(location: NSMaxRange(r), length: cl)) == close
+                && text.substring(with: NSRange(location: NSMaxRange(r), length: cl)) == close else { return false }
+            return !strict || pairs(r).contains { $0.open.location == r.location - ol && NSMaxRange($0.close) == NSMaxRange(r) + cl }
+        }
+        // Adding: same-style pairs already inside the piece are merged away (their markers dropped), so the one new
+        // pair is never nested in an old one (a nested "==" pair broke the pairing and left stray "==" showing).
+        func merged(_ r: NSRange) -> String {
+            let raw = text.substring(with: r)
+            guard strict else { return raw }
+            let inside = pairs(r).filter { NSLocationInRange($0.open.location, r) && NSMaxRange($0.close) <= NSMaxRange(r) && $0.open.location >= r.location }
+            guard !inside.isEmpty else { return raw }
+            var cuts: [NSRange] = []
+            for sp in inside { cuts.append(sp.open); cuts.append(sp.close) }
+            var out = "", pos = r.location
+            for c in cuts.sorted(by: { $0.location < $1.location }) {
+                out += text.substring(with: NSRange(location: pos, length: c.location - pos)); pos = NSMaxRange(c)
+            }
+            return out + text.substring(with: NSRange(location: pos, length: NSMaxRange(r) - pos))
         }
         let remove = segments.allSatisfy { wrappedInside($0) || wrappedOutside($0) }
 
@@ -609,7 +639,7 @@ enum MarkerLogic {
             out += text.substring(with: NSRange(location: cursor, length: r.location - cursor))
             let inner: String
             if remove { inner = text.substring(with: NSRange(location: r.location + ol, length: r.length - ol - cl)) }
-            else { inner = open + text.substring(with: r) + close }
+            else { inner = open + merged(r) + close }
             let start = whole.location + (out as NSString).length
             out += inner
             if segments.count == 1 {
@@ -1291,11 +1321,21 @@ enum ListClick {
     }
     // The edit for a click on the line holding `loc`; nil unless that line is a list item with text.
     // `strikeApplied`: for a triple click, the strike made by click 2 is still on the item: it is taken back first.
-    static func toggle(_ text: NSString, at loc: Int, _ action: Action, strikeApplied: Bool = false) -> (whole: NSRange, text: String, caret: Int)? {
+    // `before`: the note as it was before click 2's strike. Click 2 merges any strike already inside the item (so the markers never nest),
+    // so the triple click highlights the item from `before` instead: the net effect is exactly "highlight toggled", nothing else changed.
+    static func toggle(_ text: NSString, at loc: Int, _ action: Action, strikeApplied: Bool = false, before: NSString? = nil) -> (whole: NSRange, text: String, caret: Int)? {
         guard action != .none, loc >= 0, loc <= text.length else { return nil }
         if action == .triple {
             guard let hl = toggle(text, at: loc, .highlight) else { return nil }
             if !strikeApplied { return hl }
+            if let old = before, loc <= old.length, old.length != text.length || old as String != text as String,
+               ListLogic.lineBounds(old, loc).start == ListLogic.lineBounds(text, loc).start,
+               let h = toggle(old, at: loc, .highlight) {
+                let t0 = old.replacingCharacters(in: h.whole, with: h.text) as NSString
+                let o = ListLogic.lineBounds(old, loc), n = ListLogic.lineBounds(text, loc), r = ListLogic.lineBounds(t0, o.start)
+                let line = t0.substring(with: NSRange(location: r.start, length: r.contentsEnd - r.start))
+                return (NSRange(location: n.start, length: n.contentsEnd - n.start), line, n.start + (line as NSString).length)
+            }
             // un-strike, then highlight: both on the one line, as a single replacement
             guard let un = toggle(text, at: loc, .strike) else { return hl }
             let lb = ListLogic.lineBounds(text, loc)
@@ -5106,12 +5146,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         let lineStart = ListLogic.lineBounds(ns, loc).start
         // a triple click: click 2 struck this item (still unchanged since) -> take that strike back, then highlight
         let struck = action == .triple && lastStrikeClick?.lineStart == lineStart && lastStrikeClick?.text == textView.string
-        guard let t = ListClick.toggle(ns, at: loc, action, strikeApplied: struck) else { lastStrikeClick = nil; return false }
+        guard let t = ListClick.toggle(ns, at: loc, action, strikeApplied: struck, before: struck ? lastStrikeClick.map { $0.before as NSString } : nil) else { lastStrikeClick = nil; return false }
         replaceStyled(t.whole, with: t.text, selecting: NSRange(location: t.caret, length: 0))
-        lastStrikeClick = action == .strike ? (lineStart, textView.string) : nil
+        lastStrikeClick = action == .strike ? (lineStart, textView.string, ns as String) : nil
         return true
     }
-    var lastStrikeClick: (lineStart: Int, text: String)?
+    var lastStrikeClick: (lineStart: Int, text: String, before: String)?
 
     // Find "---" paragraphs; hide their characters and draw a line, unless the caret is on them.
     func refreshRules() {

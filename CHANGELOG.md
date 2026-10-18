@@ -2,7 +2,12 @@
 
 All notable changes to FloatNote. Versions are tags on GitHub; dates are the release dates.
 
-## Unreleased
+## 1.0.14 (2026-10-17)
+
+- Fixed triple-click (and ⌘-click) on a list line that already had a highlight inside it: the old inner highlight is merged, so you no longer get stray `==` signs. Triple-clicking again removes the highlight cleanly.
+- Strike and underline had the same bug and are fixed the same way.
+
+## 1.0.13 (2026-10-17)
 
 - ⌃⌥S now adds the selected text to the end of the note you have open (one blank line before the block and between its paragraphs; the file name and created date stay), without opening fullscreen or taking focus: the box shows "Added to …" if it is showing, otherwise the next time it is shown. Only when no note is open (a blank new note or an empty library) does it create a new note in fullscreen, as before. Text selected inside FloatNote itself still becomes a new note.
 - Fixed two crashes: a line with `<u>` twice and no `</u>`, and a file named like `Note -- something.txt` in the notes folder.
